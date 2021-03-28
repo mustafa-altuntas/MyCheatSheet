@@ -36,8 +36,33 @@ public IActionResult SingUp()
                     {
                         ModelState.AddModelError("", item.Description);
                     }
-                }
+                }   
             }
             return View(vm);
         }
+```
+
+# Şifre Doğrulama Ayarları Password Validasyon
+
+Bu ayarlar StartUp.cs de yapılacaktır.
+
+Bu validasyonlar işre için varsayılan ayarlardır.
+|||
+|---|---|
+|RequiredLength |Mutlaka uzunluğu n kadar olamalıdır|
+|RequireNonAlphanumeric|Mutlaka bir alfanumerik olmayan karakter olmalıdır |
+|RequireLowercase|Mutlaka bir küçük harf olmalıdır |
+|RequireUppercase|Mutlaka bir büyük harf olmalıdır |
+|RequireDigit| Mutlaka bir sayısal karakter olmalıdır|
+
+
+```c#
+services.AddIdentity<AppUser, AppRole>(opts=> 
+{
+    opts.Password.RequiredLength = 4;
+    opts.Password.RequireNonAlphanumeric = false;
+    opts.Password.RequireLowercase = false;
+    opts.Password.RequireUppercase = false;
+    opts.Password.RequireDigit = false;
+}).AddEntityFrameworkStores<AppIdentityDbContext>();
 ```
