@@ -66,3 +66,53 @@ services.AddIdentity<AppUser, AppRole>(opts=>
     opts.Password.RequireDigit = false;
 }).AddEntityFrameworkStores<AppIdentityDbContext>();
 ```
+
+## # Custom Şifre Doğrulama Mekanizması (Custom Password Validatior)
+- `IPasswordValidator<AppUser>`
+
+Kendi şifre validasyonumuzu yazmak için projemizde :open_file_folder:``CustomValidation`` adında bir klasör oluşturduk ve bu klasörün içerisine ``CustomePasswordValidator.cs`` class'ını oluşturduk ve bu class 'ımızı ``IPasswoed.validator<AppUser>`` 'ı implamenta ettik.
+
+
+```c#
+public class CustomePasswordValidator : IPasswordValidator<AppUser>
+    {
+        public Task<IdentityResult> ValidateAsync(UserManager<AppUser> manager, AppUser user, string password)
+        {
+
+            List<IdentityError> errors = new List<IdentityError>();
+
+            if (password.ToLower().Contains(user.UserName.ToLower()))
+            {
+                errors.Add(new IdentityError() { Code = "SifreKullanıcıAdıIceriyor", Description="Şifreniz Kullanıcı Adınızı içeremez." });
+            }
+
+
+            if (password.ToLower().Contains("1234"))
+            {
+                errors.Add(new IdentityError() { Code = "Sifre1234Iceriyor", Description = "Şifreniz 1234 sayısını içeremez." });
+            }
+
+            if (errors.Count ==0)
+            {
+                return Task.FromResult(IdentityResult.Success);
+            }
+            else
+            {
+                return Task.FromResult(IdentityResult.Failed(errors.ToArray()));
+            }
+        }
+    }
+```
+CustomePasswordValidator.cs class'ımızı oluşturduk ve şimdi sıra bu class'ı StartUp.cs de ``AddPasswordValidator()`` methodu ile kullanmada.
+
+```c#
+    services.AddIdentity<AppUser, AppRole>(opts =>
+    {
+        opts.Password.RequiredLength = 4;
+        opts.Password.RequireNonAlphanumeric = false;
+        opts.Password.RequireLowercase = false;
+        opts.Password.RequireUppercase = false;
+        opts.Password.RequireDigit = false;
+    }).AddPasswordValidator<CustomePasswordValidator>() //burası
+        .AddEntityFrameworkStores<AppIdentityDbContext>();
+```
