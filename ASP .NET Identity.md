@@ -116,3 +116,29 @@ CustomePasswordValidator.cs class'ımızı oluşturduk ve şimdi sıra bu class'
     }).AddPasswordValidator<CustomePasswordValidator>() //burası
         .AddEntityFrameworkStores<AppIdentityDbContext>();
 ```
+
+# Kullanıcı Doğrulama Ayarları (User Validation)
+UserName alanı benzersiz olmalı ve bu ayar kapaılamaz.
+## # Default
+- RequireUniqueEmail -> Email adresinin unique olup olmadığı
+- AllowedUserNameCharacters -> UserNama için hangi karakterlere izin verilecek
+
+
+```c#
+services.AddIdentity<AppUser, AppRole>(opts =>
+{
+    /////////////////////////////////////////////////////////////
+    opts.User.RequireUniqueEmail = true;
+    opts.User.AllowedUserNameCharacters = "abcçdefğghiıjklmnoöpqrsştüuvwxyzABCÇİĞŞÜDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
+    ////////////////////////////////////////////////////////////
+
+
+    opts.Password.RequiredLength = 4;
+    opts.Password.RequireNonAlphanumeric = false;
+    opts.Password.RequireLowercase = false;
+    opts.Password.RequireUppercase = false;
+    opts.Password.RequireDigit = false;
+}).AddPasswordValidator<CustomePasswordValidator>()
+    .AddEntityFrameworkStores<AppIdentityDbContext>();
+```
+
