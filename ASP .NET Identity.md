@@ -191,7 +191,7 @@ services.AddIdentity<AppUser, AppRole>(opts =>
   .AddEntityFrameworkStores<AppIdentityDbContext>();
 ```
 
-## Doğrulama Mesajlarının Türkçeleştirilmesi
+# Doğrulama Mesajlarının Türkçeleştirilmesi
 * IdentityErrorDescriber
   * InvalidUserName
   * DuplicateEmail
