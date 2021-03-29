@@ -190,3 +190,59 @@ services.AddIdentity<AppUser, AppRole>(opts =>
   .AddUserValidator<CustomUserValidator>() // burası ekledi
   .AddEntityFrameworkStores<AppIdentityDbContext>();
 ```
+
+## Doğrulama Mesajlarının Türkçeleştirilmesi
+* IdentityErrorDescriber
+  * InvalidUserName
+  * DuplicateEmail
+  * ve bir çok override edilebilir method içerir
+
+```c#
+public class CustomIdentityErrorDescriber:IdentityErrorDescriber
+    {
+
+        public override IdentityError InvalidUserName(string userName)
+        {
+            return new IdentityError() { Code = "InvalidUserName", Description = $"Bu {userName} ismi geçersizdir." };
+        }
+
+        public override IdentityError DuplicateUserName(string userName)
+        {
+            return new IdentityError() { Code = "DuplicateUserName", Description = $"Bu {userName} ismi kullanılmaktadır." };
+        }
+
+        public override IdentityError DuplicateEmail(string email)
+        {
+            return new IdentityError() { Code = "DuplicateEmail", Description = $"Bu {email} email adresi kullanılmaktadır." };
+
+        }
+
+        public override IdentityError InvalidEmail(string email)
+        {
+            return new IdentityError() { Code = "InvalidEmail", Description = $"Bu {email} email adresi geçersizdir." };
+        }
+
+        public override IdentityError PasswordTooShort(int length)
+        {
+            return new IdentityError() { Code = "PasswordTooShort", Description = $"Şifreniz en az {length} karakterli olmalıdır." };
+        }
+    }
+```
+
+```c#
+services.AddIdentity<AppUser, AppRole>(opts =>
+{
+    opts.User.RequireUniqueEmail = true;
+    opts.User.AllowedUserNameCharacters = "abcçdefğghiıjklmnoöpqrsştüuvwxyzABCÇİĞŞÜDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
+
+    opts.Password.RequiredLength = 4;
+    opts.Password.RequireNonAlphanumeric = false;
+    opts.Password.RequireLowercase = false;
+    opts.Password.RequireUppercase = false;
+    opts.Password.RequireDigit = false;
+}).AddPasswordValidator<CustomePasswordValidator>()
+  .AddUserValidator<CustomUserValidator>()
+  .AddErrorDescriber<CustomIdentityErrorDescriber>()  /// eklendi
+  .AddEntityFrameworkStores<AppIdentityDbContext>();
+```
+
