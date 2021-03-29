@@ -142,3 +142,51 @@ services.AddIdentity<AppUser, AppRole>(opts =>
     .AddEntityFrameworkStores<AppIdentityDbContext>();
 ```
 
+## # Custom Kullanıcı Doğrulama Mekanizması (Custom User Validatior)
+- ``IUserValidator<AppUser>``
+
+
+```c#
+public class CustomUserValidator : IUserValidator<AppUser>
+    {
+        public Task<IdentityResult> ValidateAsync(UserManager<AppUser> manager, AppUser user)
+        {
+            List<IdentityError> errors = new List<IdentityError>();
+            string[] Digits = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+
+            foreach (var digit in Digits)
+            {
+                if (user.UserName[0].ToString() == digit)
+                {
+                    errors.Add(new IdentityError() { Code = "KullaniciAdiIlkKarakterSayisal", Description = "Kullanıcı Adınız bir sayı ile başlayamaz." });
+                }
+            }
+
+            if (errors.Count == 0)
+            {
+                return Task.FromResult(IdentityResult.Success);
+            }
+            else
+            {
+                return Task.FromResult(IdentityResult.Failed(errors.ToArray()));
+            }
+
+        }
+    }
+```
+
+```c#
+services.AddIdentity<AppUser, AppRole>(opts =>
+{
+    opts.User.RequireUniqueEmail = true;
+    opts.User.AllowedUserNameCharacters = "abcçdefğghiıjklmnoöpqrsştüuvwxyzABCÇİĞŞÜDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
+
+    opts.Password.RequiredLength = 4;
+    opts.Password.RequireNonAlphanumeric = false;
+    opts.Password.RequireLowercase = false;
+    opts.Password.RequireUppercase = false;
+    opts.Password.RequireDigit = false;
+}).AddPasswordValidator<CustomePasswordValidator>()
+  .AddUserValidator<CustomUserValidator>() // burası ekledi
+  .AddEntityFrameworkStores<AppIdentityDbContext>();
+```
